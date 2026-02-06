@@ -1,7 +1,8 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { StyleSheet, View } from "react-native";
 import { Login } from "../pages/auth/login/Login";
+import { Home } from "../pages/home/Home";
+import { Register } from "../pages/auth/register/Register";
 
 const Stack = createNativeStackNavigator<any>();
 
@@ -14,13 +15,19 @@ export const Routes = () => {
           component={Login}
           options={{ headerShown: false }}
         />
+
+        <Stack.Screen
+          name="Register"
+          component={Register}
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen
+          name="Home"
+          component={Home}
+          options={{ headerShown: false }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
