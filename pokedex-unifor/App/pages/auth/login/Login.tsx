@@ -20,6 +20,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { AxiosError } from "axios";
 import { BlankButton } from "../../../components/Input/BlankButton/BlankButton";
+import { api } from "../../../api/client";
 
 export const Login = () => {
   const [email, setEmail] = React.useState<string>("");
@@ -46,6 +47,8 @@ export const Login = () => {
       const response = await loginService({ email, password });
       setErrorMessage("");
       AsyncStorage.setItem("userData", JSON.stringify(response));
+      api.defaults.headers.common["Authorization"] =
+        `Bearer ${response.accessToken}`;
       navigation.navigate("Home");
     } catch (e) {
       if (e instanceof AxiosError) {

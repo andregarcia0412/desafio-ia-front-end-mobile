@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "pokedex-unifor",
+    "name": "Pokedex Unifor",
     "slug": "pokedex-unifor",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -13,7 +13,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera"
+      },
+      "bundleIdentifier": "com.andrepaivag.pokedexunifor"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,10 +25,22 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA"
+      ],
+      "package": "com.andrepaivag.pokedexunifor"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "react-native-vision-camera"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a65a9ad6-9d40-4aaf-805c-bb4c33c51c86"
+      }
     }
   }
 }

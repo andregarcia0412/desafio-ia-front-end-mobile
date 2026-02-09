@@ -23,6 +23,7 @@ import { useNavigation } from "@react-navigation/native";
 import { AxiosError } from "axios";
 import { BlankButton } from "../../../components/Input/BlankButton/BlankButton";
 import { RegisterSchema } from "../../../schemas/register.schema";
+import { api } from "../../../api/client";
 
 export const Register = () => {
   const [name, setName] = React.useState<string>("");
@@ -62,6 +63,8 @@ export const Register = () => {
       console.log(response);
       setErrorMessage("");
       AsyncStorage.setItem("userData", JSON.stringify(response));
+      api.defaults.headers.common["Authorization"] =
+        `Bearer ${response.accessToken}`;
       navigation.navigate("Home");
     } catch (e) {
       if (e instanceof AxiosError) {
