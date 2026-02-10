@@ -26,6 +26,7 @@ export const AuthInput = ({
           secureTextEntry={!visible}
           onChangeText={(text: string) => setText(text)}
           placeholder={placeholder}
+          placeholderTextColor={"#9a9a9a"}
           value={text}
           maxLength={32}
         />
@@ -43,6 +44,7 @@ export const AuthInput = ({
         placeholder={placeholder}
         value={text}
         onChangeText={(text: string) => setText(text)}
+        placeholderTextColor={"#9a9a9a"}
         maxLength={100}
       />
     </View>
