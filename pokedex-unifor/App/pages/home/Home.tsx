@@ -34,6 +34,7 @@ export const Home = () => {
   const [zoom, setZoom] = useState<number>(0);
   const [flash, setFlash] = useState<"off" | "on">("off");
   const baseZoom = useRef<number>(0);
+  const [hasIdentified, setHasIdentified] = useState<boolean>(false);
 
   if (!permission) return null;
 
@@ -97,6 +98,11 @@ export const Home = () => {
       const response = await uploadPicture(formData);
       setAnimalInfo(response);
       console.log(response);
+      if (response.confidence >= 50) {
+        setHasIdentified(true);
+      } else {
+        setHasIdentified(false);
+      }
     } catch (e) {
       console.error(
         "Erro ao análisar imagem:",
@@ -154,10 +160,14 @@ export const Home = () => {
             <View style={styles.infoContainer}>
               <View style={styles.cardTitle}>
                 <Text style={styles.animalName}>
-                  {AnimalLabels[animalInfo.species].name}
+                  {hasIdentified
+                    ? AnimalLabels[animalInfo.species].name
+                    : "Não Identificado"}
                 </Text>
                 <Text style={styles.scientificName}>
-                  {AnimalLabels[animalInfo.species].scientificName}
+                  {hasIdentified
+                    ? AnimalLabels[animalInfo.species].scientificName
+                    : "Animal não reconhecido"}
                 </Text>
               </View>
 
@@ -167,20 +177,46 @@ export const Home = () => {
                     Confiança
                   </Text>
                   <Text
-                    style={{
-                      color: "#00a63e",
-                      fontWeight: "bold",
-                      fontSize: 16,
-                    }}
+                    style={[
+                      hasIdentified
+                        ? { color: "#00a63e" }
+                        : { color: "#D97706" },
+                      {
+                        fontWeight: "bold",
+                        fontSize: 16,
+                      },
+                    ]}
                   >
                     {animalInfo.confidence.toFixed(2) + "%"}
                   </Text>
                 </View>
-                <ProgressBar color="#00a63e" value={animalInfo.confidence} />
+                <ProgressBar
+                  color={hasIdentified ? "#00a63e" : "#D97706"}
+                  value={animalInfo.confidence}
+                />
               </View>
 
-              <View style={styles.infoCard}>
-                <Text>{AnimalLabels[animalInfo.species].description}</Text>
+              <View style={hasIdentified ? styles.infoCard : styles.alertCard}>
+                <Text style={!hasIdentified ? { color: "#78350F" } : undefined}>
+                  {hasIdentified ? (
+                    AnimalLabels[animalInfo.species].description
+                  ) : (
+                    <>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {
+                          "A IA não conseguiu identificar o animal com segurança.\n"
+                        }
+                      </Text>
+
+                      <Text>
+                        Isso pode ocorrer quando a imagem está desfocada, o
+                        animal não está visível claramente ou não está no
+                        conjunto de animais treinados. Tente enviar com melhor
+                        iluminação e enquadramento.
+                      </Text>
+                    </>
+                  )}
+                </Text>
               </View>
 
               <View style={{ paddingTop: 24 }}>
@@ -293,5 +329,16 @@ const styles = StyleSheet.create({
     padding: 16,
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  alertCard: {
+    width: "100%",
+    backgroundColor: "#fef3c7",
+    borderWidth: 1,
+    borderColor: "#fde68a",
+    gap: 8,
+    padding: 16,
+    borderRadius: 12,
+    justifyContent: "center",
   },
 });

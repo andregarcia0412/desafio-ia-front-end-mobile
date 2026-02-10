@@ -13,11 +13,11 @@ export const SlidingCard = ({
   visible,
   setVisible,
 }: SlidingCardProps) => {
-  const translateY = React.useRef(new Animated.Value(300)).current;
+  const translateY = React.useRef(new Animated.Value(700)).current;
 
   React.useEffect(() => {
     Animated.spring(translateY, {
-      toValue: visible ? -0 : 600,
+      toValue: visible ? -0 : 700,
       useNativeDriver: true,
     }).start();
   }, [visible]);
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     width: "100%",
-    height: 600,
+    height: 700,
     backgroundColor: "#fff",
     padding: 24,
     borderRadius: 24,
