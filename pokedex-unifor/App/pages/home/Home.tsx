@@ -125,7 +125,7 @@ export const Home = () => {
         />
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Back/>
+          <Back />
         </TouchableOpacity>
 
         <View style={styles.hud}>
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
 
   hud: {
     position: "absolute",
-    bottom: 40,
+    bottom: 50,
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-around",
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
 
   logoutButton: {
     position: "absolute",
-    top: 24,
+    top: 32,
     left: 16,
     padding: 15,
     borderRadius: 30,
