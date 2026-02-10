@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ImageBackground,
+} from "react-native";
 import {
   CameraView,
   useCameraPermissions,
@@ -20,6 +27,8 @@ import { useNavigation } from "@react-navigation/native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import FlashOff from "../../assets/flash_off.svg";
 import FlashOn from "../../assets/flash_on.svg";
+import { LoadingOverlay } from "../../components/Overlay/LoadingOverlay";
+import Pattern from "../../assets/pikachu_pattern.png";
 
 export const Home = () => {
   const navigation = useNavigation<any>();
@@ -40,12 +49,20 @@ export const Home = () => {
 
   if (!permission.granted) {
     return (
-      <View style={styles.permissionContainer}>
-        <Text>Precisamos da câmera</Text>
-        <TouchableOpacity onPress={requestPermission}>
-          <Text>Permitir</Text>
-        </TouchableOpacity>
-      </View>
+      <ImageBackground
+        style={styles.permissionContainer}
+        source={Pattern}
+        resizeMode="repeat"
+      >
+        <Text>Esse aplicativo precisa da câmera para funcionar</Text>
+        <FullButton
+          onPress={requestPermission}
+          title="Permitir"
+          backgroundColor="#00a63e"
+          loading={false}
+          width={60}
+        />
+      </ImageBackground>
     );
   }
 
@@ -129,6 +146,8 @@ export const Home = () => {
           zoom={zoom}
           flash={flash}
         />
+
+        {loadingUpload && <LoadingOverlay />}
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Back />
@@ -241,6 +260,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    gap: 12,
   },
 
   hud: {
