@@ -1,6 +1,11 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-import { CameraView, useCameraPermissions, CameraType } from "expo-camera";
+import {
+  CameraView,
+  useCameraPermissions,
+  CameraType,
+  FlashMode,
+} from "expo-camera";
 import { uploadPicture } from "../../api/service/classification.service";
 import { getMe } from "../../api/service/auth.service";
 import { SlidingCard } from "../../components/Card/SlidingCard/SlidingCard";
@@ -9,8 +14,15 @@ import { AnimalLabels } from "../../data/AnimalLabels";
 import { ProgressBar } from "../../components/ProgressBar/ProgressBar";
 import { FullButton } from "../../components/Input/FullButton/FullButton";
 import FlipCamera from "../../assets/flip-camera.svg";
+import Back from "../../assets/back.svg";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import FlashOff from "../../assets/flash_off.svg";
+import FlashOn from "../../assets/flash_on.svg";
 
 export const Home = () => {
+  const navigation = useNavigation<any>();
   const cameraRef = useRef<CameraView>(null);
 
   const [permission, requestPermission] = useCameraPermissions();
@@ -19,6 +31,9 @@ export const Home = () => {
   const [loadingUpload, setLoadingUpload] = useState<boolean>(false);
   const [visibleCard, setVisibleCard] = useState<boolean>(false);
   const [animalInfo, setAnimalInfo] = useState<ClassificationDto | null>(null);
+  const [zoom, setZoom] = useState<number>(0);
+  const [flash, setFlash] = useState<"off" | "on">("off");
+  const baseZoom = useRef<number>(0);
 
   if (!permission) return null;
 
@@ -32,6 +47,18 @@ export const Home = () => {
       </View>
     );
   }
+
+  const pinchGesture = Gesture.Pinch()
+    .onStart(() => {
+      baseZoom.current = zoom;
+    })
+    .onUpdate((event) => {
+      let newZoom = baseZoom.current + (event.scale - 1) * 0.5;
+
+      newZoom = Math.max(0, Math.min(newZoom, 1));
+
+      setZoom(newZoom);
+    });
 
   const takePhoto = async () => {
     if (!cameraRef.current || loadingUpload) return;
@@ -56,6 +83,10 @@ export const Home = () => {
     setFacing((prev) => (prev === "back" ? "front" : "back"));
   };
 
+  const toggleFlash = () => {
+    setFlash((prev) => (prev === "off" ? "on" : "off"));
+  };
+
   const handleUpload = async (formData: FormData) => {
     if (loadingUpload) {
       return;
@@ -77,72 +108,95 @@ export const Home = () => {
     }
   };
 
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("userData");
+    navigation.navigate("Login");
+  };
+
   return (
-    <View style={{ flex: 1 }}>
-      <CameraView
-        ref={cameraRef}
-        style={StyleSheet.absoluteFill}
-        facing={facing}
-      />
-
-      <View style={styles.hud}>
-        <TouchableOpacity style={styles.flipButton} onPress={toggleCamera}>
-          <FlipCamera />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.captureButton}
-          onPress={takePhoto}
-          activeOpacity={0.5}
+    <GestureDetector gesture={pinchGesture}>
+      <View style={{ flex: 1 }}>
+        <CameraView
+          ref={cameraRef}
+          style={StyleSheet.absoluteFill}
+          facing={facing}
+          zoom={zoom}
+          flash={flash}
         />
 
-        <View style={{ width: "15%" }} />
-      </View>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Back/>
+        </TouchableOpacity>
 
-      <SlidingCard setVisible={setVisibleCard} visible={visibleCard}>
-        {photo && <Image source={{ uri: photo }} style={styles.preview} />}
-        {animalInfo && (
-          <View style={styles.infoContainer}>
-            <View style={styles.cardTitle}>
-              <Text style={styles.animalName}>
-                {AnimalLabels[animalInfo.species].name}
-              </Text>
-              <Text style={styles.scientificName}>
-                {AnimalLabels[animalInfo.species].scientificName}
-              </Text>
-            </View>
+        <View style={styles.hud}>
+          <TouchableOpacity
+            style={styles.flashButton}
+            onPress={toggleFlash}
+            activeOpacity={0.5}
+          >
+            {flash === "on" ? <FlashOff /> : <FlashOn />}
+          </TouchableOpacity>
 
-            <View style={styles.progressBar}>
-              <View style={styles.progressBarTitle}>
-                <Text style={{ color: "#25323c", fontSize: 16 }}>
-                  Confiança
+          <TouchableOpacity
+            style={styles.captureButton}
+            onPress={takePhoto}
+            activeOpacity={0.5}
+          />
+
+          <TouchableOpacity style={styles.flipButton} onPress={toggleCamera}>
+            <FlipCamera />
+          </TouchableOpacity>
+        </View>
+
+        <SlidingCard setVisible={setVisibleCard} visible={visibleCard}>
+          {photo && <Image source={{ uri: photo }} style={styles.preview} />}
+          {animalInfo && (
+            <View style={styles.infoContainer}>
+              <View style={styles.cardTitle}>
+                <Text style={styles.animalName}>
+                  {AnimalLabels[animalInfo.species].name}
                 </Text>
-                <Text
-                  style={{ color: "#00a63e", fontWeight: "bold", fontSize: 16 }}
-                >
-                  {animalInfo.confidence.toFixed(2) + "%"}
+                <Text style={styles.scientificName}>
+                  {AnimalLabels[animalInfo.species].scientificName}
                 </Text>
               </View>
-              <ProgressBar color="#00a63e" value={animalInfo.confidence} />
-            </View>
 
-            <View style={styles.infoCard}>
-              <Text>{AnimalLabels[animalInfo.species].description}</Text>
-            </View>
+              <View style={styles.progressBar}>
+                <View style={styles.progressBarTitle}>
+                  <Text style={{ color: "#25323c", fontSize: 16 }}>
+                    Confiança
+                  </Text>
+                  <Text
+                    style={{
+                      color: "#00a63e",
+                      fontWeight: "bold",
+                      fontSize: 16,
+                    }}
+                  >
+                    {animalInfo.confidence.toFixed(2) + "%"}
+                  </Text>
+                </View>
+                <ProgressBar color="#00a63e" value={animalInfo.confidence} />
+              </View>
 
-            <View style={{ paddingTop: 24 }}>
-              <FullButton
-                backgroundColor="#00a63e"
-                onPress={() => setVisibleCard(false)}
-                loading={false}
-                title="OK"
-                width={100}
-              />
+              <View style={styles.infoCard}>
+                <Text>{AnimalLabels[animalInfo.species].description}</Text>
+              </View>
+
+              <View style={{ paddingTop: 24 }}>
+                <FullButton
+                  backgroundColor="#00a63e"
+                  onPress={() => setVisibleCard(false)}
+                  loading={false}
+                  title="OK"
+                  width={100}
+                />
+              </View>
             </View>
-          </View>
-        )}
-      </SlidingCard>
-    </View>
+          )}
+        </SlidingCard>
+      </View>
+    </GestureDetector>
   );
 };
 
@@ -167,6 +221,21 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     backgroundColor: "white",
+  },
+
+  flashButton: {
+    padding: 15,
+    borderRadius: 30,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+
+  logoutButton: {
+    position: "absolute",
+    top: 24,
+    left: 16,
+    padding: 15,
+    borderRadius: 30,
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
 
   flipButton: {

@@ -1,13 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { Platform } from "react-native";
 import { AuthResponseDto } from "../data/dto/auth.dto";
 
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 export const api = axios.create({
-  baseURL:
-    Platform.OS === "android"
-      ? "http://10.0.2.2:8080"
-      : "http://localhost:8080",
+  baseURL: apiUrl,
   timeout: 10000,
 });
 
