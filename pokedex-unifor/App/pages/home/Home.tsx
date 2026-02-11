@@ -80,6 +80,7 @@ export const Home = () => {
 
   const takePhoto = async () => {
     if (!cameraRef.current || loadingUpload) return;
+    setLoadingUpload(true)
 
     const result = await cameraRef.current.takePictureAsync();
     setPhoto(result.uri);
