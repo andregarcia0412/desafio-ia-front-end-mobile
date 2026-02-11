@@ -1,34 +1,30 @@
-import { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  ImageBackground,
-} from "react-native";
-import {
-  CameraView,
-  useCameraPermissions,
-  CameraType,
-  FlashMode,
-} from "expo-camera";
-import { uploadPicture } from "../../api/service/classification.service";
-import { getMe } from "../../api/service/auth.service";
-import { SlidingCard } from "../../components/Card/SlidingCard/SlidingCard";
-import { ClassificationDto } from "../../data/dto/classification.dto";
-import { AnimalLabels } from "../../data/AnimalLabels";
-import { ProgressBar } from "../../components/ProgressBar/ProgressBar";
-import { FullButton } from "../../components/Input/FullButton/FullButton";
-import FlipCamera from "../../assets/flip-camera.svg";
-import Back from "../../assets/back.svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
+import * as NavigationBar from "expo-navigation-bar";
+import { useEffect, useRef, useState } from "react";
+import {
+  Image,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { getMe } from "../../api/service/auth.service";
+import { uploadPicture } from "../../api/service/classification.service";
+import Back from "../../assets/back.svg";
 import FlashOff from "../../assets/flash_off.svg";
 import FlashOn from "../../assets/flash_on.svg";
-import { LoadingOverlay } from "../../components/Overlay/LoadingOverlay";
+import FlipCamera from "../../assets/flip-camera.svg";
 import Pattern from "../../assets/pikachu_pattern.png";
+import { SlidingCard } from "../../components/Card/SlidingCard/SlidingCard";
+import { FullButton } from "../../components/Input/FullButton/FullButton";
+import { LoadingOverlay } from "../../components/Overlay/LoadingOverlay";
+import { ProgressBar } from "../../components/ProgressBar/ProgressBar";
+import { AnimalLabels } from "../../data/AnimalLabels";
+import { ClassificationDto } from "../../data/dto/classification.dto";
 
 export const Home = () => {
   const navigation = useNavigation<any>();
@@ -44,6 +40,10 @@ export const Home = () => {
   const [flash, setFlash] = useState<"off" | "on">("off");
   const baseZoom = useRef<number>(0);
   const [hasIdentified, setHasIdentified] = useState<boolean>(false);
+
+  useEffect(() => {
+    NavigationBar.setVisibilityAsync("hidden");
+  }, []);
 
   if (!permission) return null;
 

@@ -22,7 +22,7 @@ export const AuthInput = ({
     return (
       <View style={styles.input}>
         <TextInput
-          style={{ width: "90%" }}
+          style={{ width: "90%", color: "#000" }}
           secureTextEntry={!visible}
           onChangeText={(text: string) => setText(text)}
           placeholder={placeholder}
@@ -40,7 +40,7 @@ export const AuthInput = ({
   return (
     <View style={styles.container}>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: "#000" }]}
         placeholder={placeholder}
         value={text}
         onChangeText={(text: string) => setText(text)}
